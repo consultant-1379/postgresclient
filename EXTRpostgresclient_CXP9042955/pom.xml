@@ -1,0 +1,95 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ericsson.oss.itpf.datalayer</groupId>
+    <artifactId>postgresclient</artifactId>
+    <version>1.1.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>EXTRpostgresclient_CXP9042955</artifactId>
+  <packaging>rpm</packaging>
+  <name>[${project.parent.artifactId}] RPM module</name>
+  <description>RPM module</description>
+  <properties>
+    <!-- CI needed properties for release job -->
+    <maven.site.skip>true</maven.site.skip>
+    <maven.site.deploy.skip>true</maven.site.deploy.skip>
+    <!-- RPM build properties -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <rpm.name>${project.artifactId}</rpm.name>
+    <rpm.version>${project.version}</rpm.version>
+    <publish_artifact>false</publish_artifact>
+    <media.category>db,service,common</media.category>
+    <install-path>/opt/ericsson/pgsql/rpm</install-path>
+    <comp-name>client</comp-name>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>timestamp-property</id>
+            <goals>
+              <goal>timestamp-property</goal>
+            </goals>
+            <configuration>
+              <name>this.year</name>
+              <pattern>yyyy</pattern>
+              <unit>year</unit>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <targetOS>linux</targetOS>
+          <versionProperty>${rpm.version}</versionProperty>
+          <license>${this.year} Ericsson AB. All rights reserved</license>
+          <group>ERI-NMS</group>
+          <vendor>Ericsson AB</vendor>
+          <url>www.ericsson.com</url>
+          <requires>
+            <require>EXTRpostgreslib_CXP9042957</require>
+          </requires>
+          <mappings>
+            <mapping>
+              <directory>/${install-path}/${comp-name}/</directory>
+              <filemode>755</filemode>
+              <username>root</username>
+              <groupname>root</groupname>
+              <configuration>false</configuration>
+              <directoryIncluded>true</directoryIncluded>
+              <recurseDirectories>true</recurseDirectories>
+              <sources>
+                <source>
+                  <location>src/main/</location>
+                  <excludes>
+                    <exclude>**/*.pyc</exclude>
+                    <exclude>**/*.pyo</exclude>
+                  </excludes>
+                </source>
+              </sources>
+            </mapping>
+          </mappings>
+          <postinstallScriptlet>
+            <scriptFile>src/main/scripts/postinstall.sh
+            </scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+          </postinstallScriptlet>
+          <preremoveScriptlet>
+            <scriptFile>src/main/scripts/preuninstall.sh
+            </scriptFile>
+            <fileEncoding>utf-8</fileEncoding>
+          </preremoveScriptlet>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
